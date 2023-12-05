@@ -13,7 +13,9 @@ export const confirmWin = (board: any[]) => {
 	for (let i = 0; i < wins.length; i++) {
 		const [a, b, c] = wins[i];
 		if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-			return true;
+			if (board[a] === "o" && board[b] === "o" && board[c] === "o")
+				return "Human";
+			return "Robot";
 		}
 	}
 };

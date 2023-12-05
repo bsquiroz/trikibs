@@ -1,75 +1,49 @@
+import { useEffect, useState } from "react";
+import { confirmWin } from "../../helpers/playerWin";
 import { useStoreTriki } from "../../store/useStoreTriki";
 
 export const GameEnd = () => {
-	const {
-		gameTied,
-		setTurn,
-		setGameTied,
-		setBoard,
-		gameEnd,
-		turn,
-		setGameEnd,
-		score,
-		setScore,
-	} = useStoreTriki((state) => state);
+	const [Win, setWin] = useState<String | null>(null);
 
-	const handleGameTie = () => {
-		setTurn({
-			human: true,
-			robot: false,
-		});
+	const { gameTied, setGameTied, setBoard, gameEnd, setGameEnd, board } =
+		useStoreTriki((state) => state);
+
+	const handleClick = () => {
 		setGameEnd(false);
 		setGameTied(false);
 		setBoard(Array(9).fill(null));
+		setWin(null);
 	};
 
-	const handleGameEnd = () => {
-		setTurn({
-			human: true,
-			robot: false,
-		});
-		setGameEnd(false);
-		setGameTied(false);
-		setBoard(Array(9).fill(null));
+	useEffect(() => {
+		const response = confirmWin(board);
 
-		if (!turn.human) {
-			setScore({
-				human: score.human + 1,
-				robot: score.robot,
-			});
-		} else {
-			setScore({
-				human: score.human,
-				robot: score.robot + 1,
-			});
+		if (response) {
+			setWin(response === "Human" ? "Human" : "Robot");
 		}
-	};
+	}, [board]);
 
-	return gameEnd ? (
+	return (
 		<div className="flex flex-col gap-5 justify-center items-center pt-5">
 			<p className="text-gray-400 text-2xl">
-				Win <strong>{!turn.human ? "Human" : "Robot"}</strong>
+				{gameTied ? (
+					<span>
+						Play <strong>Tied</strong>
+					</span>
+				) : (
+					gameEnd && (
+						<span>
+							Win <strong>{Win}</strong>
+						</span>
+					)
+				)}
 			</p>
 			<button
 				className="bg-blue-500 py-2 px-4 rounded-full text-white font-bold"
-				onClick={handleGameEnd}
+				onClick={handleClick}
 			>
 				Play again
 			</button>
 		</div>
-	) : (
-		gameTied && (
-			<div className="flex flex-col gap-5 justify-center items-center pt-5">
-				<p className="text-gray-400 text-2xl">
-					Play <strong>Tied</strong>
-				</p>
-				<button
-					className="bg-blue-500 py-2 px-4 rounded-full text-white font-bold"
-					onClick={handleGameTie}
-				>
-					Play again
-				</button>
-			</div>
-		)
 	);
 };
